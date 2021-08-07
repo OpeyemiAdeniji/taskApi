@@ -5,21 +5,30 @@ const ReminderSchema = new mongoose.Schema(
     {
         dueTime: {
             type: String,
+            required: [true, 'dueTime is required']
         },
 
         dueDate: {
-            type: String
+            type: String,
+            required: [true, 'dueDate is required']
         },
 
-        status: {
-            type: String,
-            enum : ['completed', 'pending']
+      
+        isEnabled: {
+            type: Boolean,
+            default: false
+        },
+
+        todo: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Todo'
         },
 
         item: {
             type: mongoose.Schema.ObjectId,
             ref: 'Item'
         },
+
 
         slug: String
 
@@ -38,7 +47,7 @@ const ReminderSchema = new mongoose.Schema(
 ReminderSchema.set('toJSON', { getters: true, virtuals: true })
 
 ReminderSchema.pre('save', function(next) {
-    this.slug = slugify('reminder' + this.status, { lower:  true })
+    this.slug = slugify('reminder' + this.dueDate, { lower:  true })
     next();
 })
 

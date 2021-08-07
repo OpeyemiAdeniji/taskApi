@@ -5,21 +5,22 @@ const ItemSchema = new mongoose.Schema(
     {
         title: {
             type: String,
-            required: [true, 'todo title is required']
+            maxLength: 255,
+            required: [true, 'item title is required']
         },
 
         status: {
             type: String,
-            enum: ['complete', 'pending']
+            enum: ['done', 'pending'],
+            default: 'pending'
         },
 
-        dueTime: {
-            type: String
+        dueDate: {
+            type: Date
         },
 
         description: {
             type: String,
-            required: [true, 'todo description is required']
         },
 
         slug: String,
@@ -37,7 +38,7 @@ const ItemSchema = new mongoose.Schema(
         friends: [
             {
                 type: mongoose.Schema.ObjectId,
-                ref: 'Friends'
+                ref: 'Friend'
             }
         ]
 
@@ -56,7 +57,7 @@ const ItemSchema = new mongoose.Schema(
 ItemSchema.set('toJSON', { getters: true, virtual: true })
 
 ItemSchema.pre('save', function (next){
-    this.slug = slugify('item' + this.dueTime, {lower: true})
+    this.slug = slugify('item' + this.title, {lower: true})
     next();
 })
 

@@ -3,7 +3,7 @@ const colors = require('colors');
 
 const nats = require('../events/nats');
 
-// const CountryFound = require('../events/listeners/country-found');
+const UserCreated = require('../events/listeners/user-created');
 
 const options = {
     useNewUrlParser: true,
@@ -30,7 +30,7 @@ const connectNats = async () => {
     }
 
     // connect to Nats
-    await nats.connect(process.env.NATS_CLUSTER_ID, '_toddo-todo-service', process.env.NATS_URI);
+    await nats.connect(process.env.NATS_CLUSTER_ID, 'sog-todo-service', process.env.NATS_URI);
 
     process.on(`SIGINT`, () => nats.client.close());  //sigint is to watch for intercept or interruptions
     process.on(`SIGTERM`, () => nats.client.close()); // close server if there is an interruption
@@ -44,7 +44,7 @@ const connectNats = async () => {
 const listenNats = async () => {
 
     // connect to nats
-    // await new CountryFound(nats.client).listen();
+    await new UserCreated(nats.client).listen();
 }
 
 const connectDB = async () => {

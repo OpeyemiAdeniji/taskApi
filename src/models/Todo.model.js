@@ -10,10 +10,15 @@ const TodoSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ['complete', 'pending']
+            enum: ['done', 'pending'],
+            default: 'pending'
         },
 
-        setDate: {
+        dueDate: {
+            type: Date
+        },
+
+        dueTime: {
             type: String
         },
 
@@ -24,8 +29,13 @@ const TodoSchema = new mongoose.Schema(
                 type: mongoose.Schema.ObjectId,
                 ref: 'Item'
             }
-        ]
+        ],
 
+        user:
+                {
+                    type: mongoose.Schema.ObjectId,
+                    ref: 'User'
+                }
     },
     {
         timestamps: true,

@@ -14,7 +14,7 @@ router.use('/friends', friendRoutes);
 router.use('/items', itemRoutes);
 router.use('/reminders', reminderRoutes);
 router.use('/todos', todoRoutes);
- 
+
 // for unmapped routes
 router.get('/', (req, res, next) => {
  
@@ -29,5 +29,3 @@ router.get('/', (req, res, next) => {
 });
  
 module.exports = router;
- 
-

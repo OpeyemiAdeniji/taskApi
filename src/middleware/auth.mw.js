@@ -16,7 +16,6 @@ exports.protect = asyncHandler(async (req, res, next) => { // protect here is to
              authCheck = resp || null;                                   // the AuthCheck function takes in req and secret
         })
 
-    
         // make sure token exists
         if(authCheck === null){
             return next(new ErrorResponse('Invalid token', 401, ['User not authorize to access this route']))

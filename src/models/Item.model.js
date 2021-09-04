@@ -11,12 +11,21 @@ const ItemSchema = new mongoose.Schema(
 
         status: {
             type: String,
-            enum: ['done', 'pending'],
+            enum: ['pending', 'completed', 'abandoned'],
             default: 'pending'
         },
 
+        isDue: {
+            type: Boolean,
+            default: false
+        },
+
         dueDate: {
-            type: Date
+            type: String
+        },
+
+        dueTime: {
+            type: String
         },
 
         description: {

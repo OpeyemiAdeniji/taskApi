@@ -1,7 +1,12 @@
 const ErrorResponse = require('../utils/errorResponse.util');
 const { asyncHandler, strIncludesEs6, strToArrayEs6 } = require('@nijisog/todo_common');
 const mongoose = require('mongoose');
-const moment = require('moment');
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+dayjs.extend(customParseFormat)
+
+const Worker = require('../jobs/worker');
+const reminderJob = require('../jobs/reminder.job');
 
 const Reminder = require('../models/Reminder.model');
 const Todo = require('../models/Todo.model');
@@ -81,14 +86,76 @@ exports.createReminder = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Error!', 103, ['todo does not have a list of item yet']))
     }
 
+    const tsp = dueTime.split(':');
+    const hr = tsp[0];
+    const min = tsp[1]
+    const sec = tsp[2]
+
+    const tsd = dueDate.split('-');
+    const year = tsd[0];
+    const month = tsd[1];
+    const day = tsd[2];
+
+    const iDateTime = dayjs(_item.dueDate + ' ' + _item.dueTime);
+    const fullDue = dayjs(year + '-' + month + '-' + day + ' ' + hr + ':' + min + ':' + sec);
+
+    const now = dayjs();
+    
+    if(_item.reminder !== undefined){
+
+        const _rem = await Reminder.findById(_item.reminder);
+        const rDateTime = dayjs(_rem.dueDate + ' ' +  _rem.dueTime);
+
+        if(rDateTime.get('date') > now.get('date')){
+            return next(new ErrorResponse('Error!', 500, ['reminder already exist for the selected item']));
+        }
+
+        // TODO: check time difference if reminder date is equal to current date
+    }
+
+    if(fullDue.get('date') > iDateTime.get('date')){
+        return next(new ErrorResponse('Forbidden!', 403, ['reminder dueDate cannot be lesser than item dueDate']));
+    }
+
+    if(fullDue.get('hour') > iDateTime.get('hour')){
+        return next(new ErrorResponse('Forbidden!', 403, ['reminder dueTime cannot be greater than item dueTime']));
+    }
+
+    if(fullDue.get('minute') > iDateTime.get('minute')){
+        return next(new ErrorResponse('Forbidden!', 403, ['reminder dueTime cannot be greater than item dueTime']));
+    }
+
     const reminder = await Reminder.create({
-        dueDate: moment(dueDate),
+        dueDate: dueDate,
         dueTime: dueTime,
         isEnabled: isEnabled ? isEnabled : false,
         todo: _todo._id,
         item: _item._id,
         user: _todo.user
     });
+
+    // attach reminder to item
+    _item.reminder = reminder._id;
+    await _item.save();
+
+    const rdt = dayjs(reminder.dueDate + ' ' + reminder.dueTime);
+    const scd = `${parseInt(rdt.get('minute') - 5)} ${rdt.get('hour')} ${rdt.get('date')} ${rdt.get('month') + 1} *`;
+    const scdCom = `${parseInt(rdt.get('minute'))} ${rdt.get('hour')} ${rdt.get('date')} ${rdt.get('month') + 1} *`;
+    
+    if(reminder){
+
+        const worker = new Worker(scd);
+
+        await worker.schedule(() => {
+            reminderJob.remindItem(reminder._id, _todo.user, _item._id)
+        });
+
+        const workerCom = new Worker(scdCom);
+
+        await workerCom.schedule(() => {
+            reminderJob.completeRem(reminder._id, _todo.user, _item._id)
+        })
+    }
 
     res.status(200).json({
         error: false,
@@ -98,4 +165,3 @@ exports.createReminder = asyncHandler(async (req, res, next) => {
         status: 200
     })
 })
- 

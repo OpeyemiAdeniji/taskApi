@@ -4,12 +4,16 @@ const dayjs = require('dayjs');
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 dayjs.extend(customParseFormat)
 
+const Worker = require('../jobs/worker');
+const todoJob = require('../jobs/todo.job');
+
 const Todo = require('../models/Todo.model');
 const Item = require('../models/Item.model');
 const Reminder = require('../models/Reminder.model');
 const User = require('../models/User.model');
 
-const moment = require('moment');
+const nats = require('../events/nats');
+const TodoCompleted = require('../events/publishers/todo-completed');
 
 // @desc    Get all todos
 // @route   GET /api/todo/v1/todos
@@ -154,7 +158,7 @@ exports.createTodo = asyncHandler(async (req, res, next) => {
 
     const todo = await Todo.create({
         title: title,
-        dueDate: moment(dueDate),
+        dueDate: dueDate,
         dueTime: dueTime,
         user: user._id
     });
@@ -162,6 +166,44 @@ exports.createTodo = asyncHandler(async (req, res, next) => {
     user.todos.push(todo._id);
     await user.save();
 
+    const tud = `${parseInt(fullDue.get('minute') + 3 )} ${fullDue.get('hour')} ${fullDue.get('date')} ${fullDue.get('month') + 1} *`;
+
+    if(todo){
+
+        const worker = new Worker(tud);
+        await worker.schedule(()  => {
+            todoJob.completeTodo(todo._id);
+        })
+    }
+
+    res.status(200).json({
+        error: false,
+        errors: [],
+        data: todo,
+        message: 'successful',
+        status: 200
+    })
+})
+
+// @desc    Mark todo completed
+// @route   PUT /api/todo/v1/todos/:id
+// access   Private
+exports.completeTodo = asyncHandler(async (req, res, next) => {
+    const todo = await Item.findById(req.params.id);
+
+    if(!todo){
+        return next(new ErrorResponse('Error!', 404, ['cannot find item']));
+    }
+
+    if(todo.status === 'done'){
+        return next(new ErrorResponse('Error!', 403, ['todo is already done']));
+    }
+
+    todo.status = 'done';
+    await todo.save();
+
+    await new TodoCompleted(nats.client).publish(todo);
+    
     res.status(200).json({
         error: false,
         errors: [],

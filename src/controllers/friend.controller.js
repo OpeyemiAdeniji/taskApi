@@ -8,4 +8,4 @@ const Friend = require('../models/Friend.model');
 // access   Public
 exports.getFriends = asyncHandler(async (req, res, next) => {
     res.status(200).json(res.advancedResults);
-})
+});

@@ -13,7 +13,11 @@ const ReminderSchema = new mongoose.Schema(
             required: [true, 'dueDate is required']
         },
 
-      
+        isDue: {
+            type: Boolean,
+            default: false
+        },
+
         isEnabled: {
             type: Boolean,
             default: false

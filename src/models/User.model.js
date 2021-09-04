@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const slugify = require('slugify');
-const bcrypt = require('bcryptjs');
 const { generate } = require('../utils/random.util');
 
 const UserSchema = new mongoose.Schema(

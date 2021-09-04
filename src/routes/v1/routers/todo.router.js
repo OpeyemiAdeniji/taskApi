@@ -4,7 +4,8 @@ const asyncify = require('express-asyncify');
 const {
    getTodos,
    getTodo,
-   createTodo
+   createTodo,
+   getUserTodos
 } = require('../../../controllers/todo.controller');
 
 const Todo = require('../../../models/Todo.model');
@@ -22,6 +23,7 @@ const allRoles = ['superadmin', 'admin', 'user'];
  
 router.get('/', protect, authorize(allRoles), advancedResults(Todo), getTodos);
 router.get('/:id', protect, authorize(allRoles), getTodo);
+router.get('/user/:id', protect, authorize(allRoles), getUserTodos);
 router.post('/', protect, authorize(allRoles), createTodo);
  
 module.exports = router;

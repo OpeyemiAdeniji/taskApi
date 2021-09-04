@@ -34,10 +34,6 @@ exports.getUserTodos = asyncHandler(async (req, res, next) => {
 
     const todos = await Todo.find({}).where('user').equals(user._id);
 
-    if(todos.length === 0){
-        return next(new ErrorResponse('Not Found!', 404, ['user does not have todo lists']));
-    }
-
     res.status(200).json({
         error: false,
         errors: [],

@@ -7,7 +7,6 @@ dayjs.extend(customParseFormat)
 const Worker = require('../jobs/worker');
 const todoJob = require('../jobs/todo.job');
 
-// models
 const Todo = require('../models/Todo.model');
 const Item = require('../models/Item.model');
 const User = require('../models/User.model');

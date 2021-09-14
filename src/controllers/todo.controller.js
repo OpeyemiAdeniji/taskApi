@@ -9,7 +9,6 @@ const todoJob = require('../jobs/todo.job');
 
 const Todo = require('../models/Todo.model');
 const Item = require('../models/Item.model');
-const Reminder = require('../models/Reminder.model');
 const User = require('../models/User.model');
 
 const nats = require('../events/nats');
@@ -140,9 +139,9 @@ exports.createTodo = asyncHandler(async (req, res, next) => {
 
   const now = dayjs();
 
-  const fulldue = dayjs(year + '-' + month + '-' + day + ' ' + hr + ':' + min + ':' + sec);
+  const fullDue = dayjs(year + '-' + month + '-' + day + ' ' + hr + ':' + min + ':' + sec);
 
-  if(fulldue.get('date') < now.get('date')){
+  if(fullDue.get('date') < now.get('date')){
       return next(new ErrorResponse('forbidden!', 403, ['dueDate cannot be a past date']));
   }
 

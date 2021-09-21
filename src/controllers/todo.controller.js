@@ -48,10 +48,22 @@ exports.getUserTodos = asyncHandler(async (req, res, next) => {
 // @route   GET /api/todo/v1/todos/:id
 // access   Private
 exports.getTodo = asyncHandler(async (req, res, next) => {
-    const todo = await Todo.findById(req.params.id).populate([ { path: 'items'} ]);
+
+    let todo = await Todo.findById(req.params.id).populate([ { path: 'items'} ]);
 
     if(!todo){
         return next(new ErrorResponse('Error!', 404, ['could not found todo']))
+    }
+
+    for(let i = 0; i < todo.items.length; i++){
+
+        if(todo.items[i].reminder !== undefined && todo.items[i].reminder !== ''){
+
+            const reminder = await Reminder.findById(todo.items[i].reminder);
+            todo.items[i].reminder = reminder;
+
+        }
+
     }
 
     res.status(200).json({
@@ -146,7 +158,7 @@ exports.createTodo = asyncHandler(async (req, res, next) => {
       return next(new ErrorResponse('forbidden!', 403, ['dueDate cannot be a past date']));
   }
 
-    const user = await User.findOne({ userId: user_id })
+    const user = await User.findOne({ userId: user_id });
 
     if(!user){
         return next(new ErrorResponse('Error!', 404, ['user does not exist']))

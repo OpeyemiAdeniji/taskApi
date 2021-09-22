@@ -9,6 +9,7 @@ const todoJob = require('../jobs/todo.job');
 
 const Todo = require('../models/Todo.model');
 const Item = require('../models/Item.model');
+const Reminder = require('../models/Reminder.model');
 const User = require('../models/User.model');
 
 const nats = require('../events/nats');

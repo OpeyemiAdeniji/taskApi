@@ -10,8 +10,6 @@ const itemJob = require('../jobs/item.job');
 
 const Todo = require('../models/Todo.model')
 const Item = require('../models/Item.model');
-const Reminder = require('../models/Reminder.model');
-const Friend = require('../models/Friend.model');
 const User = require('../models/User.model');
 
 const nats = require('../events/nats');

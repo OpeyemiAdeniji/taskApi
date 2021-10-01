@@ -18,7 +18,7 @@ exports.protect = asyncHandler(async (req, res, next) => { // protect here is to
 
         // make sure token exists
         if(authCheck === null){
-            return next(new ErrorResponse('Invalid token', 401, ['User not authorize to access this route']))
+            return next(new ErrorResponse('Invalid token', 401, ['User not authorize to access this route 1']))
         }
 
         req.user = { _id: authCheck.id || '', email: authCheck.email || '', roles: authCheck.roles || []}
@@ -26,12 +26,12 @@ exports.protect = asyncHandler(async (req, res, next) => { // protect here is to
         if(req.user){
             return next();
         }else{
-            return next(new ErrorResponse('Invalid token', 401, ['User not authorize to access this route']));
+            return next(new ErrorResponse('Invalid token', 401, ['User not authorize to access this route 2']));
         }
 
     } catch (err) {
         console.log(err);
-        return next(new ErrorResponse('Error', 401, ['user is not authorize to access this route'])); // it takes in 3params which is message, statusCode and array of erros
+        return next(new ErrorResponse('Error', 401, ['user is not authorize to access this route 3'])); // it takes in 3params which is message, statusCode and array of erros
     }
 });
 
@@ -55,7 +55,7 @@ exports.authorize = (roles) => {
         })
 
         if(!authPermit){
-            return next(new ErrorResponse('Unauthorized!', 401, ['user is not authorize to access this route']))
+            return next(new ErrorResponse('Unauthorized!', 401, ['user is not authorize to access this route 4']))
         }else{
             return next(); // proceed to next request
         }

@@ -12,9 +12,11 @@ exports.protect = asyncHandler(async (req, res, next) => { // protect here is to
     try {
         
         let authCheck;
-        await AuthCheck(req, process.env.JWT_SECRET).then((resp) => { // call protect function from the common code...remember it's promise that is why we use .then 
-             authCheck = resp || null;                                   // the AuthCheck function takes in req and secret
-        })
+        // await AuthCheck(req, process.env.JWT_SECRET).then((resp) => { // call protect function from the common code...remember it's promise that is why we use .then 
+        //      authCheck = resp || null;                                   // the AuthCheck function takes in req and secret
+        // })
+
+        authCheck = AuthCheck(req, process.env.JWT_SECRET);
 
         // make sure token exists
         if(authCheck === null){

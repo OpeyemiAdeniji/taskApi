@@ -169,7 +169,8 @@ exports.completeItem = asyncHandler(async (req, res, next) => {
 
     const _item = await Item.findById(item._id).populate([ { path: 'todo' } ])
 
-    await new ItemCompleted(nats.client).publish(_item);
+    const todo = await Todo.findById(item.todo);
+    await new ItemCompleted(nats.client).publish({ item: _item, todo:todo });
     
     res.status(200).json({
         error: false,

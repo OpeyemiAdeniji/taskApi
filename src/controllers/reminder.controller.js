@@ -183,7 +183,30 @@ exports.enableReminder = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         error: false,
         errors: [],
-        data: reminder,
+        data: null,
+        message: 'successful',
+        status: 200
+    })
+})
+
+// @desc    Disable reminder
+// @route   PUT /api/todo/v1/reminders/disable/:id
+// access   Private
+exports.disableReminder = asyncHandler(async (req, res, next) => {
+
+    const reminder = await Reminder.findById(req.params.id);
+
+    if(!reminder){
+        return next(new ErrorResponse('Not found!', 404, ['cannot find reminder']));
+    }
+
+    reminder.isEnabled = false;
+    await reminder.save();
+
+    res.status(200).json({
+        error: false,
+        errors: [],
+        data: null,
         message: 'successful',
         status: 200
     })

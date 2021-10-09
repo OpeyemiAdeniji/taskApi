@@ -221,3 +221,54 @@ exports.completeTodo = asyncHandler(async (req, res, next) => {
         status: 200
     })
 })
+
+// @desc    Delete todo
+// @route   DELETE /api/todo/v1/todos/:id
+// access   Private
+exports.deleteTodo = asyncHandler(async (req, res, next) => {
+    
+    const todo = await Todo.findById(req.params.id);
+
+    if(!todo){
+        return next(new ErrorResponse('Not found!', 404, ['todo list does not exist']));
+    }
+
+    // delete all items and their reminders
+    if(todo.items.length > 0){
+
+        for(let j = 0; j < todo.items.length; j++){
+
+            // find the item
+            const item = await Item.findById(todo.items[j]);
+
+            // check if item has reminder
+            if(item.reminder && item.reminder !== ''){
+                await Reminder.findByIdAndDelete(item.reminder)
+            }
+
+            // delete item 
+            await Item.findByIdAndDelete(item._id);
+
+        }
+    }
+
+    // remove todo id from user todo lists
+    const user = await User.findById(todo.user);
+    const todoIndex = user.todos.indexOf(todo._id); // get the ID index
+    user.todos.splice(todoIndex, 1); // remove todo id from array
+    await user.save();
+
+    // delete todo finally
+    await Todo.findByIdAndDelete(todo._id);
+
+    res.status(200).json({
+        error: false,
+        errors: [],
+        data: null,
+        message: 'successful',
+        status: 200
+    })
+
+    // TODO: publish NATS for notification
+
+})

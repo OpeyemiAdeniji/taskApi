@@ -5,7 +5,8 @@ const {
    getReminders, 
    getReminder,
    createReminder,
-   enableReminder
+   enableReminder,
+   disableReminder
 } = require('../../../controllers/reminder.controller');
 
 const Reminder = require('../../../models/Reminder.model');
@@ -25,5 +26,6 @@ router.get('/', protect, authorize(allRoles), advancedResults(Reminder), getRemi
 router.get('/:id', protect, authorize(allRoles), getReminder);
 router.post('/', protect, authorize(allRoles), createReminder);
 router.put('/:id', protect, authorize(allRoles), enableReminder);
+router.put('/disable/:id', protect, authorize(allRoles), disableReminder);
  
 module.exports = router;

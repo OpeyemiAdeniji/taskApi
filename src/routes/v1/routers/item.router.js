@@ -4,7 +4,8 @@ const {
    getItems, 
    getItem,
    createItem,
-   completeItem
+   completeItem,
+   deleteItem
 } = require('../../../controllers/item.controller');
 
 const Item = require('../../../models/Item.model');
@@ -24,6 +25,6 @@ router.get('/', protect, authorize(allRoles), advancedResults(Item), getItems);
 router.get('/:id', protect, authorize(allRoles), getItem);
 router.post('/', protect, authorize(allRoles), createItem);
 router.put('/:id', protect, authorize(allRoles), completeItem);
- 
+router.delete('/:id', protect, authorize(allRoles), deleteItem);
  
 module.exports = router; 

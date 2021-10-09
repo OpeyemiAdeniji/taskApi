@@ -180,3 +180,37 @@ exports.completeItem = asyncHandler(async (req, res, next) => {
         status: 200
     })
 })
+
+// @desc    Delete item 
+// @route   DELETE /api/todo/v1/items/:id
+// access   Private
+exports.deleteItem = asyncHandler(async (req, res, next) => {
+
+    const item = await Item.findById(req.params.id);
+
+    if(!item){
+        return next(new ErrorResponse('Not found!', 403, ['item not found']));
+    }
+
+    // delete the reminder if exists
+    if(item.reminder){
+        await Reminder.findByIdAndDelete(item.reminder);
+    }
+
+    // remove item from todo
+    const todo = await Todo.findById(item.todo);
+    const itemIndex = todo.items.indexOf(item._id); // find the item id index
+    todo.items.splice(itemIndex, 1); // remove item id with splice
+    await todo.save();
+
+    // delete item finaally
+    await Item.findByIdAndDelete(item._id);
+
+    res.status(200).json({
+        error: false,
+        errors: [],
+        data: null,
+        message: 'successful',
+        status: 200
+    })
+})
